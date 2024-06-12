@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="icon"
+      href="https://cdn.glitch.global/f321c50b-b818-458d-8546-896cf699799b/faviconHAWA.png?v=1716826745328"
+    />
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <style>
+      #example-scanning-overlay {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: transparent;
+        z-index: 2;
+      }
+      @media (min-aspect-ratio: 1/1) {
+        #example-scanning-overlay .inner {
+          width: 50vh;
+          height: 50vh;
+        }
+      }
+      @media (max-aspect-ratio: 1/1) {
+        #example-scanning-overlay .inner {
+          width: 80vw;
+          height: 80vw;
+        }
+      }
+
+      #example-scanning-overlay .inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        background: linear-gradient(to right, white 10px, transparent 10px) 0 0,
+          linear-gradient(to right, white 10px, transparent 10px) 0 100%,
+          linear-gradient(to left, white 10px, transparent 10px) 100% 0,
+          linear-gradient(to left, white 10px, transparent 10px) 100% 100%,
+          linear-gradient(to bottom, white 10px, transparent 10px) 0 0,
+          linear-gradient(to bottom, white 10px, transparent 10px) 100% 0,
+          linear-gradient(to top, white 10px, transparent 10px) 0 100%,
+          linear-gradient(to top, white 10px, transparent 10px) 100% 100%;
+        background-repeat: no-repeat;
+        background-size: 40px 40px;
+      }
+
+      #example-scanning-overlay.hidden {
+        display: none;
+      }
+
+      #example-scanning-overlay img {
+        opacity: 0.7;
+        width: 90%;
+        align-self: center;
+      }
+
+      #example-scanning-overlay .inner .scanline {
+        position: absolute;
+        width: 100%;
+        height: 10px;
+        background: white;
+        animation: move 2s linear infinite;
+      }
+      @keyframes move {
+        0%,
+        100% {
+          top: 0%;
+        }
+        50% {
+          top: calc(100% - 10px);
+        }
+      }
+      button {
+        background: linear-gradient(
+            to bottom,
+            rgb(255 255 255 / 15%) 0%,
+            rgb(48 71 120 / 15%) 100%
+          ),
+          radial-gradient(at top center, #111 0%, rgba(0, 0, 0, 0.4) 120%) #111;
+        padding: 10px 20px;
+        position: absolute;
+        bottom: 10%;
+        right: 50%;
+        display: none;
+        color: white;
+        transform: translate(50%, 50%);
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: medium;
+
+        i {
+          margin-inline-end: 15px;
+        }
+      }
+    </style>
+    <script>
+      function isAppleDevice() {
+        const userAgent =
+          navigator.userAgent || navigator.vendor || window.opera;
+
+        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+          return true;
+        }
+
+        if (/Macintosh|Mac OS X/.test(userAgent)) {
+          return true;
+        }
+
+        return false;
+      }
+      const isApple = isAppleDevice();
+      document.addEventListener("DOMContentLoaded", function () {
+        if (isApple) {
+          document.getElementById("playButton").style.display = "block";
+        }
+      });
+
+      AFRAME.registerComponent("mytarget", {
+        init: function () {
+          const showInfo = () => {
+            const websiteBtn = document.querySelector("#website-button");
+            websiteBtn.addEventListener("click", function (evt) {
+              window.location.href = "https://www.heyareweare.com";
+            });
+          };
+          var video = document.querySelector("#video");
+          video.pause();
+
+          this.el.addEventListener("targetFound", (event) => {
+            if (isApple) {
+              document.getElementById("playButton").style.display = "block";
+            } else {
+              video.play();
+              setTimeout(() => {
+                showInfo();
+              }, 300);
+            }
+          });
+
+          this.el.addEventListener("targetLost", (event) => {
+            video.pause();
+          });
+        },
+      });
+
+      function playVideo() {
+        var video = document.querySelector("#video");
+        video.muted = false;
+        video.play();
+        const websiteBtn = document.querySelector("#website-button");
+        websiteBtn.addEventListener("click", function (evt) {
+          window.location.href = "https://www.heyareweare.com";
+        });
+
+        document.getElementById("playButton").style.display = "none";
+      }
+    </script>
+  </head>
+  <body>
+    <div id="example-scanning-overlay" class="hidden">
+      <div class="inner">
+        <img
+          src="https://cdn.glitch.global/3617af50-2be3-4637-866f-8345a12213eb/AVR%20Image%20Target%20avr.heyareweare.com.jpg?v=1718077557881"
+        />
+        <div class="scanline"></div>
+      </div>
+    </div>
+
+    <a-scene
+      mindar-image="uiScanning: #example-scanning-overlay; imageTargetSrc: https://cdn.glitch.global/3617af50-2be3-4637-866f-8345a12213eb/avr-imagetarget2.mind?v=1718078717991; uiLoading:no;"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      device-orientation-permission-ui="enabled: false"
+      xr-mode-ui="enabled: false"
+      emitevents="true"
+      loading-screen="dotsColor: white; backgroundColor: black"
+      cursor="rayOrigin: mouse"
+      raycaster="objects: .clickable"
+    >
+      <a-assets>
+        <img
+          id="website-icon"
+          crossorigin="anonymous"
+          src="https://cdn.glitch.global/3617af50-2be3-4637-866f-8345a12213eb/Website%20Icon.png?v=1718077550407"
+        />
+        <video id="video" loop webkit-playsinline playsinline>
+          <source
+            src="https://cdn.glitch.me/3617af50-2be3-4637-866f-8345a12213eb/AVR%2050MB.mp4?v=1718077496021"
+            type="video/mp4"
+          />
+        </video>
+      </a-assets>
+      <a-camera
+        position="0 0 0"
+        look-controls="enabled: false"
+        cursor="fuse: false; rayOrigin: mouse;"
+        raycaster="far: 30000; objects: .clickable"
+      ></a-camera>
+      <a-entity mytarget mindar-image-target="targetIndex: 0">
+        <a-video
+          src="#video"
+          width="1"
+          height="0.552"
+          position="0 0 0"
+          class="clickable"
+        ></a-video>
+        <a-image
+          visible="true"
+          id="website-button"
+          class="clickable"
+          src="#website-icon"
+          position="0 -0.50 0"
+          height="0.2"
+          width="0.2"
+        ></a-image>
+      </a-entity>
+    </a-scene>
+    <button id="playButton" onclick="playVideo()">
+      <i class="fa-solid fa-play"></i>Play
+    </button>
+  </body>
+</html>
